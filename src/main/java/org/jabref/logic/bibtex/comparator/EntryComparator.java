@@ -24,6 +24,8 @@ public class EntryComparator implements Comparator<BibEntry> {
     private final boolean binary;
     private final Comparator<BibEntry> next;
 
+    public static boolean[] coverage = new boolean[26];
+
     /**
      *
      * @param binary true: the presence of fields is checked; false: the content of the fields is compared
@@ -50,39 +52,50 @@ public class EntryComparator implements Comparator<BibEntry> {
         // default equals
         // TODO: with the new default equals this does not only return 0 for identical objects,
         //       but for all objects that have the same id and same fields
+        coverage[1] = true;
         if (Objects.equals(e1, e2)) {
+            coverage[2] = true;
             return 0;
         }
 
         Object f1 = e1.getField(sortField).orElse(null);
         Object f2 = e2.getField(sortField).orElse(null);
-
         if (binary) {
+            coverage[3] = true;
             // We just separate on set and unset fields:
             if (f1 == null) {
+                coverage[4] = true;
                 return f2 == null ? (next == null ? idCompare(e1, e2) : next.compare(e1, e2)) : 1;
             } else {
+                coverage[5] = true;
                 return f2 == null ? -1 : (next == null ? idCompare(e1, e2) : next.compare(e1, e2));
             }
         }
 
         // If the field is author or editor, we rearrange names to achieve that they are
         // sorted according to last name.
+
         if (sortField.getProperties().contains(FieldProperty.PERSON_NAMES)) {
+            coverage[6] = true;
             if (f1 != null) {
+                coverage[7] = true;
                 f1 = AuthorList.fixAuthorForAlphabetization((String) f1).toLowerCase(Locale.ROOT);
             }
             if (f2 != null) {
+                coverage[8] = true;
                 f2 = AuthorList.fixAuthorForAlphabetization((String) f2).toLowerCase(Locale.ROOT);
             }
         } else if (sortField.equals(InternalField.TYPE_HEADER)) {
+            coverage[9] = true;
             // Sort by type.
             f1 = e1.getType();
             f2 = e2.getType();
         } else if (sortField.equals(InternalField.KEY_FIELD)) {
+            coverage[10] = true;
             f1 = e1.getCitationKey().orElse(null);
             f2 = e2.getCitationKey().orElse(null);
         } else if (sortField.isNumeric()) {
+            coverage[11] = true;
             try {
                 Integer i1 = Integer.parseInt((String) f1);
                 Integer i2 = Integer.parseInt((String) f2);
@@ -90,45 +103,58 @@ public class EntryComparator implements Comparator<BibEntry> {
                 f1 = i1;
                 f2 = i2;
             } catch (NumberFormatException ex) {
+                coverage[12] = true;
                 // Parsing failed. Give up treating these as numbers.
                 // TODO: should we check which of them failed, and sort based on that?
             }
         }
+        coverage[13] = true;
 
         if (f2 == null) {
+            coverage[14] = true;
             if (f1 == null) {
+                coverage[15] = true;
                 return next == null ? idCompare(e1, e2) : next.compare(e1, e2);
             } else {
+                coverage[16] = true;
                 return 1;
             }
         }
 
         if (f1 == null) { // f2 != null here automatically
+            coverage[17] = true;
             return -1;
         }
 
         int result;
 
         if ((f1 instanceof Integer f1i) && (f2 instanceof Integer f2i)) {
+            coverage[18] = true;
             result = f1i.compareTo(f2i);
         } else if (f2 instanceof Integer integer) {
+            coverage[19] = true;
             Integer f1AsInteger = Integer.valueOf(f1.toString());
             result = f1AsInteger.compareTo(integer);
         } else if (f1 instanceof Integer integer) {
+            coverage[20] = true;
             Integer f2AsInteger = Integer.valueOf(f2.toString());
             result = integer.compareTo(f2AsInteger);
         } else {
+            coverage[21] = true;
             String ours = ((String) f1).toLowerCase(Locale.ROOT);
             String theirs = ((String) f2).toLowerCase(Locale.ROOT);
             int comp = ours.compareTo(theirs);
             result = comp;
         }
         if (result != 0) {
+            coverage[22] = true;
             return descending ? -result : result; // Primary sort.
         }
         if (next == null) {
+            coverage[23] = true;
             return idCompare(e1, e2); // If still equal, we use the unique IDs.
         } else {
+            coverage[24] = true;
             return next.compare(e1, e2); // Secondary sort if existent.
         }
     }
