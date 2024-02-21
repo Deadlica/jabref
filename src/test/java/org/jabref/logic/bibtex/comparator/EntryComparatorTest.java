@@ -155,6 +155,16 @@ class EntryComparatorTest {
         BibEntry e2 = new BibEntry();
         assertEquals(1, new EntryComparator(false, false, StandardField.AUTHOR).compare(e1, e2));
     }
+
+     @AfterAll
+    static void printCoverage() {
+        System.out.println("Coverage Information:");
+        for (int i = 1; i < EntryComparator.coverage.length; i++) {
+            if (EntryComparator.coverage[i]) {
+                System.out.println("Branch " + i + " was reached.");
+            }
+        }
+    }
 }
 
 
