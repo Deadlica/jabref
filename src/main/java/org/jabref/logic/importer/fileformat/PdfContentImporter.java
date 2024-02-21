@@ -45,6 +45,8 @@ public class PdfContentImporter extends Importer {
     private String curString;
     private String year;
 
+    private boolean[] coverage = new boolean[52];
+
     /**
      * Removes all non-letter characters at the end
      * <p>
@@ -225,6 +227,7 @@ public class PdfContentImporter extends Importer {
 
         proceedToNextNonEmptyLine();
         if (lineIndex >= lines.length) {
+            coverage[0] = true;
             // PDF could not be parsed or is empty
             // return empty list
             return Optional.empty();
@@ -251,9 +254,11 @@ public class PdfContentImporter extends Importer {
 
         EntryType type = StandardEntryType.InProceedings;
         if (curString.length() > 4) {
+            coverage[1] = true;
             // special case: possibly conference as first line on the page
             extractYear();
             if (curString.contains("Conference")) {
+                coverage[2] = true;
                 fillCurStringWithNonEmptyLines();
                 conference = curString;
                 curString = "";
@@ -262,6 +267,7 @@ public class PdfContentImporter extends Importer {
                 // future work: get year using RegEx
                 String lower = curString.toLowerCase(Locale.ROOT);
                 if (lower.contains("copyright")) {
+                    coverage[3] = true;
                     fillCurStringWithNonEmptyLines();
                     publisher = curString;
                     curString = "";
@@ -278,13 +284,17 @@ public class PdfContentImporter extends Importer {
         // after title: authors
         author = null;
         while ((lineIndex < lines.length) && !"".equals(lines[lineIndex])) {
+            coverage[4] = true;
+            coverage[5] = true;
             // author names are unlikely to be lines among different lines
             // treat them line by line
             curString = streamlineNames(lines[lineIndex]);
             if (author == null) {
+                coverage[6] = true;
                 author = curString;
             } else {
                 if (!"".equals(curString)) {
+                    coverage[7] = true;
                     author = author.concat(" and ").concat(curString);
                 }  // if lines[i] is "and" then "" is returned by streamlineNames -> do nothing
             }
@@ -295,9 +305,13 @@ public class PdfContentImporter extends Importer {
 
         // then, abstract and keywords follow
         while (lineIndex < lines.length) {
+            coverage[8] = true;
             curString = lines[lineIndex];
             if ((curString.length() >= "Abstract".length()) && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length()))) {
+                coverage[9] = true;
+                coverage[10] = true;
                 if (curString.length() == "Abstract".length()) {
+                    coverage[11] = true;
                     // only word "abstract" found -- skip line
                     curString = "";
                 } else {
@@ -307,13 +321,18 @@ public class PdfContentImporter extends Importer {
                 // fillCurStringWithNonEmptyLines() cannot be used as that uses " " as line separator
                 // whereas we need linebreak as separator
                 while ((lineIndex < lines.length) && !"".equals(lines[lineIndex])) {
+                    coverage[12] = true;
+                    coverage[13] = true;
                     curString = curString.concat(lines[lineIndex]).concat(System.lineSeparator());
                     lineIndex++;
                 }
                 abstractT = curString.trim();
                 lineIndex++;
             } else if ((curString.length() >= "Keywords".length()) && "Keywords".equalsIgnoreCase(curString.substring(0, "Keywords".length()))) {
+                coverage[14] = true;
+                coverage[15] = true;
                 if (curString.length() == "Keywords".length()) {
+                    coverage[16] = true;
                     // only word "Keywords" found -- skip line
                     curString = "";
                 } else {
@@ -327,9 +346,11 @@ public class PdfContentImporter extends Importer {
 
                 int pos = lower.indexOf("technical");
                 if (pos >= 0) {
+                    coverage[17] = true;
                     type = StandardEntryType.TechReport;
                     pos = curString.trim().lastIndexOf(' ');
                     if (pos >= 0) {
+                        coverage[18] = true;
                         // assumption: last character of curString is NOT ' '
                         //   otherwise pos+1 leads to an out-of-bounds exception
                         number = curString.substring(pos + 1);
@@ -348,6 +369,7 @@ public class PdfContentImporter extends Importer {
         // therefore, read until the beginning of the file
 
         while (lineIndex >= 0) {
+            coverage[19] = true;
             readLastBlock();
             // i now points to the block before or is -1
             // curString contains the last block, separated by " "
@@ -356,6 +378,8 @@ public class PdfContentImporter extends Importer {
 
             int pos = curString.indexOf("(Eds.)");
             if ((pos >= 0) && (publisher == null)) {
+                coverage[20] = true;
+                coverage[21] = true;
                 // looks like a Springer last line
                 // e.g: A. Persson and J. Stirna (Eds.): PoEM 2009, LNBIP 39, pp. 161-175, 2009.
                 publisher = "Springer";
@@ -364,12 +388,14 @@ public class PdfContentImporter extends Importer {
                 int edslength = "(Eds.)".length();
                 int posWithEditor = pos + edslength + 2; // +2 because of ":" after (Eds.) and the subsequent space
                 if (posWithEditor > curString.length()) {
+                    coverage[22] = true;
                     curString = curString.substring(posWithEditor - 2); // we don't have any spaces after Eds so we substract the 2
                 } else {
                     curString = curString.substring(posWithEditor);
                 }
                 String[] springerSplit = curString.split(", ");
                 if (springerSplit.length >= 4) {
+                    coverage[23] = true;
                     conference = springerSplit[0];
 
                     String seriesData = springerSplit[1];
@@ -380,24 +406,32 @@ public class PdfContentImporter extends Importer {
                     pages = springerSplit[2].substring(4);
 
                     if (springerSplit[3].length() >= 4) {
+                        coverage[24] = true;
                         year = springerSplit[3].substring(0, 4);
                     }
                 }
             } else {
                 if (DOI == null) {
+                    coverage[25] = true;
                     pos = curString.indexOf("DOI");
                     if (pos < 0) {
+                        coverage[26] = true;
                         pos = curString.indexOf(StandardField.DOI.getName());
                     }
                     if (pos >= 0) {
+                        coverage[27] = true;
                         pos += 3;
                         if (curString.length() > pos) {
+                            coverage[28] = true;
                             char delimiter = curString.charAt(pos);
                             if ((delimiter == ':') || (delimiter == ' ')) {
+                                coverage[29] = true;
+                                coverage[30] = true;
                                 pos++;
                             }
                             int nextSpace = curString.indexOf(' ', pos);
                             if (nextSpace > 0) {
+                                coverage[31] = true;
                                 DOI = curString.substring(pos, nextSpace);
                             } else {
                                 DOI = curString.substring(pos);
@@ -407,6 +441,8 @@ public class PdfContentImporter extends Importer {
                 }
 
                 if ((publisher == null) && curString.contains("IEEE")) {
+                    coverage[32] = true;
+                    coverage[33] = true;
                     // IEEE has the conference things at the end
                     publisher = "IEEE";
 
@@ -418,16 +454,21 @@ public class PdfContentImporter extends Importer {
                     // }
 
                     if (conference == null) {
+                        coverage[34] = true;
                         pos = curString.indexOf('$');
                         if (pos > 0) {
+                            coverage[35] = true;
                             // we found the price
                             // before the price, the ISSN is stated
                             // skip that
                             pos -= 2;
                             while ((pos >= 0) && (curString.charAt(pos) != ' ')) {
+                                coverage[36] = true;
+                                coverage[37] = true;
                                 pos--;
                             }
                             if (pos > 0) {
+                                coverage[38] = true;
                                 conference = curString.substring(0, pos);
                             }
                         }
@@ -442,44 +483,64 @@ public class PdfContentImporter extends Importer {
         // TODO: institution parsing missing
 
         if (author != null) {
+            coverage[39] = true;
             entry.setField(StandardField.AUTHOR, author);
         }
         if (editor != null) {
+            coverage[40] = true;
             entry.setField(StandardField.EDITOR, editor);
         }
         if (abstractT != null) {
+            coverage[41] = true;
             entry.setField(StandardField.ABSTRACT, abstractT);
         }
         if (!Strings.isNullOrEmpty(keywords)) {
+            coverage[42] = true;
             entry.setField(StandardField.KEYWORDS, keywords);
         }
         if (title != null) {
+            coverage[43] = true;
             entry.setField(StandardField.TITLE, title);
         }
         if (conference != null) {
+            coverage[44] = true;
             entry.setField(StandardField.BOOKTITLE, conference);
         }
         if (DOI != null) {
+            coverage[45] = true;
             entry.setField(StandardField.DOI, DOI);
         }
         if (series != null) {
+            coverage[46] = true;
             entry.setField(StandardField.SERIES, series);
         }
         if (volume != null) {
+            coverage[47] = true;
             entry.setField(StandardField.VOLUME, volume);
         }
         if (number != null) {
+            coverage[48] = true;
             entry.setField(StandardField.NUMBER, number);
         }
         if (pages != null) {
+            coverage[49] = true;
             entry.setField(StandardField.PAGES, pages);
         }
         if (year != null) {
+            coverage[50] = true;
             entry.setField(StandardField.YEAR, year);
         }
         if (publisher != null) {
+            coverage[51] = true;
             entry.setField(StandardField.PUBLISHER, publisher);
         }
+
+        for (int i = 0; i < coverage.length; i++) {
+            if (coverage[i]) {
+                System.out.print(i + " ");
+            }
+        }
+
         return Optional.of(entry);
     }
 
