@@ -155,6 +155,24 @@ class EntryComparatorTest {
         BibEntry e2 = new BibEntry();
         assertEquals(1, new EntryComparator(false, false, StandardField.AUTHOR).compare(e1, e2));
     }
+
+    @Test
+    void useNextComparatorForTieBreak() {
+        // Entries with the same title
+        BibEntry entry1 = new BibEntry()
+                .withField(StandardField.TITLE, "Shared Title")
+                .withField(StandardField.YEAR, "2020");
+        BibEntry entry2 = new BibEntry()
+                .withField(StandardField.TITLE, "Shared Title")
+                .withField(StandardField.YEAR, "2019");
+
+        // Primary comparator based on title, next comparator based on year
+        EntryComparator entryComparator = new EntryComparator(false, false, StandardField.TITLE,
+                new EntryComparator(false, false, StandardField.YEAR));
+
+        // Expecting entry1 > entry2 because of the next comparator (year comparison)
+        assertEquals(1, entryComparator.compare(entry1, entry2));
+    }
 }
 
 
