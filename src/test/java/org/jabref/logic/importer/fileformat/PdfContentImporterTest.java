@@ -127,4 +127,27 @@ class PdfContentImporterTest {
 
         assertEquals(Optional.of(expected), importer.getEntryFromPDFContent(firstPageContents, "\n"));
     }
+
+    /**
+     * Tests if the exception when "Conference" is included on the first line of input (firstPageContents) is handled correctly.
+     */
+    @Test
+    void getEntryFromPDFContentHandlesConferenceOnFirstLine() {
+        BibEntry expected = new BibEntry(StandardEntryType.InProceedings);
+        expected.setField(StandardField.BOOKTITLE, "Conference HCII 2019, Orlando, FL, USA, July 26–31, 2019, Proceedings 21.");
+        expected.setField(StandardField.TITLE, "The effects of immersion in a virtual reality game: Presence and physical activity");
+        expected.setField(StandardField.YEAR, "2019");
+        expected.setField(StandardField.AUTHOR, "Yao and Shengjie and Gyoung Kim");
+
+        String firstPageContents = """
+        Conference HCII 2019, Orlando, FL, USA, July 26–31, 2019, Proceedings 21.
+
+        The effects of immersion in a virtual reality game: Presence and physical activity
+
+        Yao, Shengjie, and Gyoung Kim
+
+        """;
+
+        assertEquals(Optional.of(expected), importer.getEntryFromPDFContent(firstPageContents, "\n"));
+    }
 }
