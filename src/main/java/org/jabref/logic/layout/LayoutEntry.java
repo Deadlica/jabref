@@ -408,7 +408,9 @@ class LayoutEntry {
         }
     }
 
-    private LayoutFormatter getLayoutFormatterByName(String name) {
+
+
+    public LayoutFormatter getLayoutFormatterByName(String name) {
         return switch (name) {
             // For backward compatibility
             case "HTMLToLatexFormatter", "HtmlToLatex" -> new HtmlToLatexFormatter();
@@ -416,11 +418,11 @@ class LayoutEntry {
             case "UnicodeToLatexFormatter", "UnicodeToLatex" -> new UnicodeToLatexFormatter();
             case "OOPreFormatter" -> new OOPreFormatter();
             case "AuthorAbbreviator" -> new AuthorAbbreviator();
-            case "AuthorAndToSemicolonReplacer" -> new AuthorAndToSemicolonReplacer();
+            case "AuthorAndToSemicolonReplacer" -> new AuthorAndToSemicolonReplacer(); //added test
             case "AuthorAndsCommaReplacer" -> new AuthorAndsCommaReplacer();
             case "AuthorAndsReplacer" -> new AuthorAndsReplacer();
             case "AuthorFirstAbbrLastCommas" -> new AuthorFirstAbbrLastCommas();
-            case "AuthorFirstAbbrLastOxfordCommas" -> new AuthorFirstAbbrLastOxfordCommas();
+            case "AuthorFirstAbbrLastOxfordCommas" -> new AuthorFirstAbbrLastOxfordCommas(); // added test case
             case "AuthorFirstFirst" -> new AuthorFirstFirst();
             case "AuthorFirstFirstCommas" -> new AuthorFirstFirstCommas();
             case "AuthorFirstLastCommas" -> new AuthorFirstLastCommas();
