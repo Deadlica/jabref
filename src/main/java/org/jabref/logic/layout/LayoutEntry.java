@@ -99,6 +99,8 @@ import org.slf4j.LoggerFactory;
 class LayoutEntry {
     private static final Logger LOGGER = LoggerFactory.getLogger(LayoutEntry.class);
 
+    public static boolean[] branchcoverage;
+
     private List<LayoutFormatter> option;
     // Formatter to be run after other formatters:
     private LayoutFormatter postFormatter;
@@ -111,6 +113,7 @@ class LayoutEntry {
     private final List<Path> fileDirForDatabase;
     private final LayoutFormatterPreferences preferences;
     private final JournalAbbreviationRepository abbreviationRepository;
+
 
     public LayoutEntry(StringInt si,
                        List<Path> fileDirForDatabase,
@@ -408,10 +411,97 @@ class LayoutEntry {
         }
     }
 
-    private LayoutFormatter getLayoutFormatterByName(String name) {
+    public LayoutFormatter getLayoutFormatterByName(String name) {
+        System.out.println("BREKAING POINT");
+
+        //marks the reached branches
+        switch (name) {
+            case "HTMLToLatexFormatter", "HtmlToLatex" -> branchcoverage[0] = true;
+            case "UnicodeToLatexFormatter", "UnicodeToLatex" -> branchcoverage[1] = true;
+            case "OOPreFormatter" -> branchcoverage[2] = true;
+            case "AuthorAbbreviator" -> branchcoverage[3] = true;
+            case "AuthorAndToSemicolonReplacer" -> branchcoverage[4] = true;
+            case "AuthorAndsCommaReplacer" -> branchcoverage[5] = true;
+            case "AuthorAndsReplacer" -> branchcoverage[6] = true;
+            case "AuthorFirstAbbrLastCommas" -> branchcoverage[7] = true;
+            case "AuthorFirstAbbrLastOxfordCommas" -> branchcoverage[8] = true;
+            case "AuthorFirstFirst" ->branchcoverage[9] = true;
+            case "AuthorFirstFirstCommas" -> branchcoverage[10] = true;
+            case "AuthorFirstLastCommas" -> branchcoverage[11] = true;
+            case "AuthorFirstLastOxfordCommas" -> branchcoverage[12] = true;
+            case "AuthorLastFirst" -> branchcoverage[13] = true;
+            case "AuthorLastFirstAbbrCommas" -> branchcoverage[14] = true;
+            case "AuthorLastFirstAbbreviator" -> branchcoverage[15] = true;
+            case "AuthorLastFirstAbbrOxfordCommas" -> branchcoverage[16] = true;
+            case "AuthorLastFirstCommas" -> branchcoverage[17] = true;
+            case "AuthorLastFirstOxfordCommas" -> branchcoverage[18] = true;
+            case "AuthorLF_FF" -> branchcoverage[19] = true;
+            case "AuthorLF_FFAbbr" -> branchcoverage[20] = true;
+            case "AuthorNatBib" -> branchcoverage[21] = true;
+            case "AuthorOrgSci" -> branchcoverage[22] = true;
+            case "CompositeFormat" -> branchcoverage[23] = true;
+            case "CreateBibORDFAuthors" -> branchcoverage[24] = true;
+            case "CreateDocBook4Authors" -> branchcoverage[25] = true;
+            case "CreateDocBook4Editors" -> branchcoverage[26] = true;
+            case "CreateDocBook5Authors" -> branchcoverage[27] = true;
+            case "CreateDocBook5Editors" -> branchcoverage[28] = true;
+            case "CurrentDate" -> branchcoverage[29] = true;
+            case "DateFormatter" -> branchcoverage[30] = true;
+            case "DOICheck" -> branchcoverage[31] = true;
+            case "DOIStrip" -> branchcoverage[32] = true;
+            case "EntryTypeFormatter" -> branchcoverage[33] = true;
+            case "FirstPage" -> branchcoverage[34] = true;
+            case "FormatPagesForHTML" -> branchcoverage[35] = true;
+            case "FormatPagesForXML" -> branchcoverage[36] = true;
+            case "GetOpenOfficeType" -> branchcoverage[37] = true;
+            case "HTMLChars" -> branchcoverage[38] = true;
+            case "HTMLParagraphs" -> branchcoverage[39] = true;
+            case "Iso690FormatDate" -> branchcoverage[40] = true;
+            case "Iso690NamesAuthors" -> branchcoverage[41] = true;
+            case "JournalAbbreviator" -> branchcoverage[42] = true;
+            case "LastPage" -> branchcoverage[43] = true;
+// For backward compatibility
+            case "FormatChars", "LatexToUnicode" -> branchcoverage[44] = true;
+            case "NameFormatter" -> branchcoverage[45] = true;
+            case "NoSpaceBetweenAbbreviations" -> branchcoverage[46] = true;
+            case "Ordinal" -> branchcoverage[47] = true;
+            case "RemoveBrackets" -> branchcoverage[48] = true;
+            case "RemoveBracketsAddComma" -> branchcoverage[49] = true;
+            case "RemoveLatexCommands" -> branchcoverage[50] = true;
+            case "RemoveTilde" -> branchcoverage[51] = true;
+            case "RemoveWhitespace" -> branchcoverage[52] = true;
+            case "RisKeywords" -> branchcoverage[53] = true;
+            case "RisMonth" -> branchcoverage[54] = true;
+            case "RTFChars" -> branchcoverage[55] = true;
+            case "ToLowerCase" -> branchcoverage[56] = true;
+            case "ToUpperCase" -> branchcoverage[57] = true;
+            case "XMLChars" -> branchcoverage[58] = true;
+            case "Default" -> branchcoverage[59] = true;
+            case "FileLink" -> branchcoverage[60] = true;
+            case "Number" -> branchcoverage[61] = true;
+            case "RisAuthors" -> branchcoverage[62] = true;
+            case "Authors" -> branchcoverage[63] = true;
+            case "IfPlural" -> branchcoverage[64] = true;
+            case "Replace" -> branchcoverage[65] = true;
+            case "WrapContent" -> branchcoverage[66] = true;
+            case "WrapFileLinks" -> branchcoverage[67] = true;
+            case "Markdown" -> branchcoverage[68] = true;
+            case "CSLType" -> branchcoverage[69] = true;
+            case "ShortMonth" -> branchcoverage[70] = true;
+            case "ReplaceWithEscapedDoubleQuotes" -> branchcoverage[71] = true;
+            case "HayagrivaType" -> branchcoverage[72] = true;
+
+        };
+        //prints out the reached branches for each testcases
+        for (int i = 0; i < branchcoverage.length; i++) {
+            System.out.println("branch " + i + ": " + branchcoverage[i]);
+        }
+
+
         return switch (name) {
             // For backward compatibility
             case "HTMLToLatexFormatter", "HtmlToLatex" -> new HtmlToLatexFormatter();
+
             // For backward compatibility
             case "UnicodeToLatexFormatter", "UnicodeToLatex" -> new UnicodeToLatexFormatter();
             case "OOPreFormatter" -> new OOPreFormatter();
@@ -540,6 +630,9 @@ class LayoutEntry {
     }
 
     public static List<List<String>> parseMethodsCalls(String calls) {
+
+        System.out.println("=============TESTbREAK================");
+
         List<List<String>> result = new ArrayList<>();
 
         char[] c = calls.toCharArray();
