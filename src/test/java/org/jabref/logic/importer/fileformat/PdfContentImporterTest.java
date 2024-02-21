@@ -105,4 +105,26 @@ class PdfContentImporterTest {
 
         assertEquals(Optional.of(entry), importer.getEntryFromPDFContent(firstPageContents, "\n"));
     }
+
+    /**
+     * Test if the abstract field of the BibEntry is correctly set when input (firstPageContents) contains an abstract:
+     * if ((curString.length() >= "Abstract".length()) && "Abstract".equalsIgnoreCase(curString.substring(0, "Abstract".length())))
+     */
+    @Test
+    void getEntryFromPDFContentParsesAbstractCorrectly() {
+        BibEntry expected = new BibEntry(StandardEntryType.InProceedings);
+        expected.setField(StandardField.TITLE, "The effects of immersion in a virtual reality game: Presence and physical activity");
+        expected.setField(StandardField.AUTHOR, "Yao and Shengjie and Gyoung Kim");
+        expected.setField(StandardField.ABSTRACT, "this study explored the effects of immersion in virtual reality games on physical exercise performance.");
+
+        String firstPageContents = """
+        The effects of immersion in a virtual reality game: Presence and physical activity
+
+        Yao, Shengjie, and Gyoung Kim
+
+        ABSTRACT this study explored the effects of immersion in virtual reality games on physical exercise performance.
+        """;
+
+        assertEquals(Optional.of(expected), importer.getEntryFromPDFContent(firstPageContents, "\n"));
+    }
 }
