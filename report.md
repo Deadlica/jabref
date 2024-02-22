@@ -161,7 +161,7 @@ As can be seen in the table above, the branch coverage of JaCoco is roughly the 
 |--------------------------------------------------------|--------|-----------------|-------------|-------------|
 | [ArgumentProcessor::processArguments()](https://github.com/Deadlica/jabref/commit/commit_hash) |    TBA    |      TBA           |       Samuel Greenberg      |    4         |
 | [LayoutEntry::getLayoutFormatterByName()](https://github.com/Deadlica/jabref/commit/7bab53816b491197b938973fea0f79e01234623c)  |    51%    |       51.3%          |      Noel Tesfalidet       |       7      |
-| [PdfContentImporter::getEntryFromPDFContent()](https://github.com/Deadlica/jabref/commit/commit_hash) |        |                 |             |             |
+| [PdfContentImporter::getEntryFromPDFContent()](https://github.com/Deadlica/jabref/commit/461e57619e08fbb3aec7a166b800e24c47aa83fb) |   63%     |        44%         |      André Fredriksen       |      2       |
 | [FieldNameLabel::getDescription()](https://github.com/Deadlica/jabref/commit/3d825e841f34a945c6cdfe4a84c5be511d7881cd)          |   6%   |       5.2%      |    Gustaf Larsson      |  3   |
 | [EntryComparator::compare()](https://github.com/Deadlica/jabref/commit/commit_hash)                |        |                 |             |             |
 
