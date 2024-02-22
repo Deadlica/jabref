@@ -1,14 +1,11 @@
 package org.jabref.logic.layout;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Supplier;
 
 import org.jabref.logic.formatter.bibtexfields.HtmlToLatexFormatter;
 import org.jabref.logic.formatter.bibtexfields.UnicodeToLatexFormatter;
@@ -96,7 +93,13 @@ import org.jabref.model.strings.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 class LayoutEntry {
+
+    private static Map<String, Supplier<LayoutFormatter>> formatterMap = new HashMap<>();
+
+
+    private static boolean[] branchcoverage = new boolean[73];
     private static final Logger LOGGER = LoggerFactory.getLogger(LayoutEntry.class);
 
     private List<LayoutFormatter> option;
@@ -408,9 +411,183 @@ class LayoutEntry {
         }
     }
 
-
-
     public LayoutFormatter getLayoutFormatterByName(String name) {
+        formatterMap = initHashMap();
+        return formatterMap.get(name).get();
+    }
+
+    private Map<String, Supplier<LayoutFormatter>> initHashMap() {
+        formatterMap.put("HTMLToLatexFormatter", HtmlToLatexFormatter::new);
+        formatterMap.put("HtmlToLatex", HtmlToLatexFormatter::new);
+        formatterMap.put("UnicodeToLatexFormatter", UnicodeToLatexFormatter::new);
+        formatterMap.put("UnicodeToLatex", UnicodeToLatexFormatter::new);
+        formatterMap.put("OOPreFormatter", OOPreFormatter::new);
+        formatterMap.put("AuthorAbbreviator", AuthorAbbreviator::new);
+        formatterMap.put("AuthorAndToSemicolonReplacer", AuthorAndToSemicolonReplacer::new);
+        formatterMap.put("AuthorAndsCommaReplacer", AuthorAndsCommaReplacer::new);
+        formatterMap.put("AuthorAndsReplacer", AuthorAndsReplacer::new);
+        formatterMap.put("AuthorFirstAbbrLastCommas", AuthorFirstAbbrLastCommas::new);
+        formatterMap.put("AuthorFirstAbbrLastOxfordCommas", AuthorFirstAbbrLastOxfordCommas::new);
+        formatterMap.put("AuthorFirstFirst", AuthorFirstFirst::new);
+        formatterMap.put("AuthorFirstFirstCommas", AuthorFirstFirstCommas::new);
+        formatterMap.put("AuthorFirstLastCommas", AuthorFirstLastCommas::new);
+        formatterMap.put("AuthorFirstLastOxfordCommas", AuthorFirstLastOxfordCommas::new);
+        formatterMap.put("AuthorLastFirst", AuthorLastFirst::new);
+        formatterMap.put("AuthorLastFirstAbbrCommas", AuthorLastFirstAbbrCommas::new);
+        formatterMap.put("AuthorLastFirstAbbreviator", AuthorLastFirstAbbreviator::new);
+        formatterMap.put("AuthorLastFirstAbbrOxfordCommas", AuthorLastFirstAbbrOxfordCommas::new);
+        formatterMap.put("AuthorLastFirstCommas", AuthorLastFirstCommas::new);
+        formatterMap.put("AuthorLastFirstOxfordCommas", AuthorLastFirstOxfordCommas::new);
+        formatterMap.put("AuthorLF_FF", AuthorLF_FF::new);
+        formatterMap.put("AuthorLF_FFAbbr", AuthorLF_FFAbbr::new);
+        formatterMap.put("AuthorNatBib", AuthorNatBib::new);
+        formatterMap.put("AuthorOrgSci", AuthorOrgSci::new);
+        formatterMap.put("CompositeFormat", CompositeFormat::new);
+        formatterMap.put("CreateBibORDFAuthors", CreateBibORDFAuthors::new);
+        formatterMap.put("CreateDocBook4Authors", CreateDocBook4Authors::new);
+        formatterMap.put("CreateDocBook4Editors", CreateDocBook4Editors::new);
+        formatterMap.put("CreateDocBook5Authors", CreateDocBook5Authors::new);
+        formatterMap.put("CreateDocBook5Editors", CreateDocBook5Editors::new);
+        formatterMap.put("CurrentDate", CurrentDate::new);
+        formatterMap.put("DateFormatter", DateFormatter::new);
+        formatterMap.put("DOICheck", () -> new DOICheck(preferences.getDoiPreferences()));
+        formatterMap.put("DOIStrip", DOIStrip::new);
+        formatterMap.put("EntryTypeFormatter", EntryTypeFormatter::new);
+        formatterMap.put("FirstPage", FirstPage::new);
+        formatterMap.put("FormatPagesForHTML", FormatPagesForHTML::new);
+        formatterMap.put("FormatPagesForXML", FormatPagesForXML::new);
+        formatterMap.put("GetOpenOfficeType", GetOpenOfficeType::new);
+        formatterMap.put("HTMLChars", HTMLChars::new);
+        formatterMap.put("HTMLParagraphs", HTMLParagraphs::new);
+        formatterMap.put("Iso690FormatDate", Iso690FormatDate::new);
+        formatterMap.put("Iso690NamesAuthors", Iso690NamesAuthors::new);
+        formatterMap.put("JournalAbbreviator", () -> new JournalAbbreviator(abbreviationRepository));
+        formatterMap.put("LastPage", LastPage::new);
+        formatterMap.put("LatexToUnicode", LatexToUnicodeFormatter::new);
+        formatterMap.put("NameFormatter", NameFormatter::new);
+        formatterMap.put("NoSpaceBetweenAbbreviations", NoSpaceBetweenAbbreviations::new);
+        formatterMap.put("Ordinal", Ordinal::new);
+        formatterMap.put("RemoveBrackets", RemoveBrackets::new);
+        formatterMap.put("RemoveBracketsAddComma", RemoveBracketsAddComma::new);
+        formatterMap.put("RemoveLatexCommands", RemoveLatexCommandsFormatter::new);
+        formatterMap.put("RemoveTilde", RemoveTilde::new);
+        formatterMap.put("RemoveWhitespace", RemoveWhitespace::new);
+        formatterMap.put("RisKeywords", RisKeywords::new);
+        formatterMap.put("RisMonth", RisMonth::new);
+        formatterMap.put("RTFChars", RTFChars::new);
+        formatterMap.put("ToLowerCase", ToLowerCase::new);
+        formatterMap.put("ToUpperCase", ToUpperCase::new);
+        formatterMap.put("XMLChars", XMLChars::new);
+        formatterMap.put("Default", Default::new);
+        formatterMap.put("FileLink", () -> new FileLink(fileDirForDatabase, preferences.getMainFileDirectory()));
+        formatterMap.put("Number", Number::new);
+        formatterMap.put("RisAuthors", RisAuthors::new);
+        formatterMap.put("Authors", Authors::new);
+        formatterMap.put("IfPlural", IfPlural::new);
+        formatterMap.put("Replace", Replace::new);
+        formatterMap.put("WrapContent", WrapContent::new);
+        formatterMap.put("WrapFileLinks", () -> new WrapFileLinks(fileDirForDatabase, preferences.getMainFileDirectory()));
+        formatterMap.put("Markdown", MarkdownFormatter::new);
+        formatterMap.put("CSLType", CSLType::new);
+        formatterMap.put("ShortMonth", ShortMonthFormatter::new);
+        formatterMap.put("ReplaceWithEscapedDoubleQuotes", ReplaceWithEscapedDoubleQuotes::new);
+        formatterMap.put("HayagrivaType", HayagrivaType::new);
+        return formatterMap;
+    }
+    /*
+    public LayoutFormatter getLayoutFormatterByName(String name) {
+
+        switch (name) {
+            case "HTMLToLatexFormatter", "HtmlToLatex" -> branchcoverage[0] = true;
+            case "UnicodeToLatexFormatter", "UnicodeToLatex" -> branchcoverage[1] = true;
+            case "OOPreFormatter" -> branchcoverage[2] = true;
+            case "AuthorAbbreviator" -> branchcoverage[3] = true;
+            case "AuthorAndToSemicolonReplacer" -> branchcoverage[4] = true;
+            case "AuthorAndsCommaReplacer" -> branchcoverage[5] = true;
+            case "AuthorAndsReplacer" -> branchcoverage[6] = true;
+            case "AuthorFirstAbbrLastCommas" -> branchcoverage[7] = true;
+            case "AuthorFirstAbbrLastOxfordCommas" -> branchcoverage[8] = true;
+            case "AuthorFirstFirst" ->branchcoverage[9] = true;
+            case "AuthorFirstFirstCommas" -> branchcoverage[10] = true;
+            case "AuthorFirstLastCommas" -> branchcoverage[11] = true;
+            case "AuthorFirstLastOxfordCommas" -> branchcoverage[12] = true;
+            case "AuthorLastFirst" -> branchcoverage[13] = true;
+            case "AuthorLastFirstAbbrCommas" -> branchcoverage[14] = true;
+            case "AuthorLastFirstAbbreviator" -> branchcoverage[15] = true;
+            case "AuthorLastFirstAbbrOxfordCommas" -> branchcoverage[16] = true;
+            case "AuthorLastFirstCommas" -> branchcoverage[17] = true;
+            case "AuthorLastFirstOxfordCommas" -> branchcoverage[18] = true;
+            case "AuthorLF_FF" -> branchcoverage[19] = true;
+            case "AuthorLF_FFAbbr" -> branchcoverage[20] = true;
+            case "AuthorNatBib" -> branchcoverage[21] = true;
+            case "AuthorOrgSci" -> branchcoverage[22] = true;
+            case "CompositeFormat" -> branchcoverage[23] = true;
+            case "CreateBibORDFAuthors" -> branchcoverage[24] = true;
+            case "CreateDocBook4Authors" -> branchcoverage[25] = true;
+            case "CreateDocBook4Editors" -> branchcoverage[26] = true;
+            case "CreateDocBook5Authors" -> branchcoverage[27] = true;
+            case "CreateDocBook5Editors" -> branchcoverage[28] = true;
+            case "CurrentDate" -> branchcoverage[29] = true;
+            case "DateFormatter" -> branchcoverage[30] = true;
+            case "DOICheck" -> branchcoverage[31] = true;
+            case "DOIStrip" -> branchcoverage[32] = true;
+            case "EntryTypeFormatter" -> branchcoverage[33] = true;
+            case "FirstPage" -> branchcoverage[34] = true;
+            case "FormatPagesForHTML" -> branchcoverage[35] = true;
+            case "FormatPagesForXML" -> branchcoverage[36] = true;
+            case "GetOpenOfficeType" -> branchcoverage[37] = true;
+            case "HTMLChars" -> branchcoverage[38] = true;
+            case "HTMLParagraphs" -> branchcoverage[39] = true;
+            case "Iso690FormatDate" -> branchcoverage[40] = true;
+            case "Iso690NamesAuthors" -> branchcoverage[41] = true;
+            case "JournalAbbreviator" -> branchcoverage[42] = true;
+            case "LastPage" -> branchcoverage[43] = true;
+// For backward compatibility
+            case "FormatChars", "LatexToUnicode" -> branchcoverage[44] = true;
+            case "NameFormatter" -> branchcoverage[45] = true;
+            case "NoSpaceBetweenAbbreviations" -> branchcoverage[46] = true;
+            case "Ordinal" -> branchcoverage[47] = true;
+            case "RemoveBrackets" -> branchcoverage[48] = true;
+            case "RemoveBracketsAddComma" -> branchcoverage[49] = true;
+            case "RemoveLatexCommands" -> branchcoverage[50] = true;
+            case "RemoveTilde" -> branchcoverage[51] = true;
+            case "RemoveWhitespace" -> branchcoverage[52] = true;
+            case "RisKeywords" -> branchcoverage[53] = true;
+            case "RisMonth" -> branchcoverage[54] = true;
+            case "RTFChars" -> branchcoverage[55] = true;
+            case "ToLowerCase" -> branchcoverage[56] = true;
+            case "ToUpperCase" -> branchcoverage[57] = true;
+            case "XMLChars" -> branchcoverage[58] = true;
+            case "Default" -> branchcoverage[59] = true;
+            case "FileLink" -> branchcoverage[60] = true;
+            case "Number" -> branchcoverage[61] = true;
+            case "RisAuthors" -> branchcoverage[62] = true;
+            case "Authors" -> branchcoverage[63] = true;
+            case "IfPlural" -> branchcoverage[64] = true;
+            case "Replace" -> branchcoverage[65] = true;
+            case "WrapContent" -> branchcoverage[66] = true;
+            case "WrapFileLinks" -> branchcoverage[67] = true;
+            case "Markdown" -> branchcoverage[68] = true;
+            case "CSLType" -> branchcoverage[69] = true;
+            case "ShortMonth" -> branchcoverage[70] = true;
+            case "ReplaceWithEscapedDoubleQuotes" -> branchcoverage[71] = true;
+            case "HayagrivaType" -> branchcoverage[72] = true;
+        };
+
+
+        try (FileWriter writer = new FileWriter("branch_coverage.txt", true)) { // true for append mode
+            //prints out the reached branches for each test case and save to file if true
+            for (int i = 0; i < branchcoverage.length; i++) {
+                if (branchcoverage[i]) {
+                    String line = "branch " + i + ": " + branchcoverage[i] + "\n";
+                    System.out.println(line);
+                    writer.write(line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return switch (name) {
             // For backward compatibility
             case "HTMLToLatexFormatter", "HtmlToLatex" -> new HtmlToLatexFormatter();
@@ -491,7 +668,7 @@ class LayoutEntry {
             default -> null;
         };
     }
-
+    */
     /**
      * Return an array of LayoutFormatters found in the given formatterName string (in order of appearance).
      */

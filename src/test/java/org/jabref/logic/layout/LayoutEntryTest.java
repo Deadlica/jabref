@@ -231,6 +231,7 @@ public class LayoutEntryTest {
 
         assertTrue(le.getLayoutFormatterByName("AuthorNatBib").getClass().getName().contains("AuthorNatBib"));
     }
+
 }
 
 
