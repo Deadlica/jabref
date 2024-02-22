@@ -36,7 +36,7 @@ Function                 | CC (Lizard) | CC (Manual counting)
 ------------------------ | --------    |     ----------
 getAuthor()              | 45          | 42
 parseEntry()             | 82          | 76
-compare()                | 26          | 6
+compare()                | 26          | 15
 getEntryFromPDFContent() | 53          | 52
 importDatabase()         | 53          | 57
  
@@ -54,7 +54,7 @@ In most cases the long functions tend to have large cyclomatic complexity but th
 
 * getAuthor() parses author names of references and reformats it.
 * The purpose of parseEntry() was to convert an HTML element to a BibEntry.
-* The purpose of setupValidation() was to set up validation rules for properties of external file types.
+* The purpose of compare() was to  compare two objects and determine their order relative to each other. 
 * getEntryFromPDFContent() generates a BibEntry by parsing information in a String from a PDF.
 * The purpose of importDatabase() was to parse input from a BufferedReader into a list of BibEntry objects.
 
@@ -107,6 +107,10 @@ The high complexity of getEntryFromPDFContent() comes from the fact that each PD
 ### getLayoutFormatterByName(String name)
 This function gets manually counted complexity to 72 and 74 according to Lizard. The high complexity in this function comes from a large switch case with many cases that cause a significant amount of branching. In this case, high complexity does not make the function difficult to understand but can make it harder to read. Lowering the complexity of this function is fairly simple because of the large switch case. Any data structure that holds the values for each name type as a key could reduce almost all complexity. There are not any drawbacks to doing this but it won't improve readability directly. The advantage of this refactoring could be a minor improvement in performance since the switch case needs to linearly go though all the cases but a hash map for example could do this in constant time. However, since the its only around 80 cases, this won't increase in performance will be extremely small.   
 
+### compare()
+This method takes two objects, checks the presence of the object  field, and returns an appropriate comparison result. because there are multiple field types that can be compared , causing the method to have many conditional branches which increases the complexity of the function. An example of code refactor can be to isolate different field presence into multiple methods. An example is to have function compareAuthorField() which compares after the presence of author fields for the two objects, compareKeyField which compares after the presence of the key field for the two objects and compareNumericField() which parse and compare numeric fields .
+
+
 
 ## Coverage
 
@@ -132,7 +136,7 @@ Using Jacoco was also simple to setup as it was already configured with the proj
 | [LayoutEntry::getLayoutFormatterByName()](https://github.com/Deadlica/jabref/commit/e024db90ab005bfc2ff65c7e0852c597ce36085f)  | 37%    | 37.5%              |
 | [PdfContentImporter::getEntryFromPDFContent()](https://github.com/Deadlica/jabref/commit/8a121bd04e352df027b1448cc9781cba5cc0c807) | 49%    | 34.6%           |
 | [FieldNameLabel::getDescription()](https://github.com/Deadlica/jabref/commit/b1c0b8ae5eb1613ebc22ff5c1285bb6067681994)        | 0%     | 0%              |
-| [EntryComparator::compare()](https://github.com/Deadlica/jabref/commit/dittCommitNummer)              | 75%    | 75%             |
+| [EntryComparator::compare()](https://github.com/Deadlica/jabref/commit/a2f3f480610d4a25c3661c8b2aa7d22c7845f164)              | 75%    | 75%             |
 
 
 ### Evaluation
@@ -163,7 +167,7 @@ As can be seen in the table above, the branch coverage of JaCoco is roughly the 
 | [LayoutEntry::getLayoutFormatterByName()](https://github.com/Deadlica/jabref/commit/7bab53816b491197b938973fea0f79e01234623c)  |    51%    |       51.3%          |      Noel Tesfalidet       |       7      |
 | [PdfContentImporter::getEntryFromPDFContent()](https://github.com/Deadlica/jabref/commit/461e57619e08fbb3aec7a166b800e24c47aa83fb) |   63%     |        44%         |      André Fredriksen       |      2       |
 | [FieldNameLabel::getDescription()](https://github.com/Deadlica/jabref/commit/3d825e841f34a945c6cdfe4a84c5be511d7881cd)          |   6%   |       5.2%      |    Gustaf Larsson      |  3   |
-| [EntryComparator::compare()](https://github.com/Deadlica/jabref/commit/commit_hash)                |        |                 |             |             |
+| [EntryComparator::compare()](https://github.com/Deadlica/jabref/commit/349c4cbb723848bbb6ff914a91892347fe068864)              |  79%      |      83%         |   Rafael Bechara          |            2 |
 
 
 
