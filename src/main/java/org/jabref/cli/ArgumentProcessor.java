@@ -78,7 +78,7 @@ public class ArgumentProcessor {
 
     private boolean guiNeeded;
     private final List<UiCommand> uiCommands = new ArrayList<>();
-    List<ParserResult> loaded;
+    private List<ParserResult> loaded;
 
     /**
      * First call the constructor, then call {@link #processArguments()}.
