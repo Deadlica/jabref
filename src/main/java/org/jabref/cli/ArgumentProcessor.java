@@ -78,6 +78,7 @@ public class ArgumentProcessor {
 
     private boolean guiNeeded;
     private final List<UiCommand> uiCommands = new ArrayList<>();
+    List<ParserResult> loaded;
 
     /**
      * First call the constructor, then call {@link #processArguments()}.
@@ -191,9 +192,7 @@ public class ArgumentProcessor {
     public void processArguments() {
         uiCommands.clear();
 
-        if ((startupMode == Mode.INITIAL_START) && cli.isShowVersion()) {
-            cli.displayVersion();
-        }
+        handleShowVersion();
 
         if ((startupMode == Mode.INITIAL_START) && cli.isHelp()) {
             JabRefCLI.printUsage(preferencesService);
@@ -203,21 +202,13 @@ public class ArgumentProcessor {
 
         guiNeeded = true;
 
-        // Check if we should reset all preferences to default values:
-        if (cli.isPreferencesReset()) {
-            resetPreferences(cli.getPreferencesReset());
-        }
+        handlePreferencesReset();
 
-        // Check if we should import preferences from a file:
-        if (cli.isPreferencesImport()) {
-            importPreferences();
-        }
+        handlePreferencesImport();
 
-        List<ParserResult> loaded = importAndOpenFiles();
+        this.loaded = importAndOpenFiles();
 
-        if (!cli.isBlank() && cli.isFetcherEngine()) {
-            fetch(cli.getFetcherEngine()).ifPresent(loaded::add);
-        }
+        handleFetcherEngine();
 
         if (cli.isExportMatches()) {
             if (!loaded.isEmpty()) {
@@ -229,65 +220,17 @@ public class ArgumentProcessor {
             }
         }
 
-        if (cli.isGenerateCitationKeys()) {
-            regenerateCitationKeys(loaded);
-        }
+        handleGenerateCitationKeys();
 
-        if (cli.isAutomaticallySetFileLinks()) {
-            automaticallySetFileLinks(loaded);
-        }
+        handleAutomaticallySetFileLinks();
 
-        if ((cli.isWriteXMPtoPdf() && cli.isEmbeddBibfileInPdf()) || (cli.isWriteMetadatatoPdf() && (cli.isWriteXMPtoPdf() || cli.isEmbeddBibfileInPdf()))) {
-            System.err.println("Give only one of [writeXMPtoPdf, embeddBibfileInPdf, writeMetadatatoPdf]");
-        }
+        handleWriteToPdf();
 
-        if (cli.isWriteMetadatatoPdf() || cli.isWriteXMPtoPdf() || cli.isEmbeddBibfileInPdf()) {
-            if (!loaded.isEmpty()) {
-                writeMetadataToPdf(loaded,
-                        cli.getWriteMetadatatoPdf(),
-                        preferencesService.getXmpPreferences(),
-                        preferencesService.getFilePreferences(),
-                        preferencesService.getLibraryPreferences().getDefaultBibDatabaseMode(),
-                        Globals.entryTypesManager,
-                        preferencesService.getFieldPreferences(),
-                        Globals.journalAbbreviationRepository,
-                        cli.isWriteXMPtoPdf() || cli.isWriteMetadatatoPdf(),
-                        cli.isEmbeddBibfileInPdf() || cli.isWriteMetadatatoPdf());
-            }
-        }
+        handleExport();
 
-        if (cli.isFileExport()) {
-            if (!loaded.isEmpty()) {
-                exportFile(loaded, cli.getFileExport().split(","));
-                LOGGER.debug("Finished export");
-            } else {
-                System.err.println(Localization.lang("The output option depends on a valid import option."));
-            }
-        }
+        handleAuxImport();
 
-        if (cli.isPreferencesExport()) {
-            try {
-                preferencesService.exportPreferences(Path.of(cli.getPreferencesExport()));
-            } catch (JabRefException ex) {
-                LOGGER.error("Cannot export preferences", ex);
-            }
-        }
-
-        if (!cli.isBlank() && cli.isAuxImport()) {
-            doAuxImport(loaded);
-        }
-
-        if (cli.isBlank()) {
-            uiCommands.add(new UiCommand.BlankWorkspace());
-        }
-
-        if (!cli.isBlank() && cli.isJumpToKey()) {
-            uiCommands.add(new UiCommand.JumpToEntryKey(cli.getJumpToKey()));
-        }
-
-        if (!cli.isBlank() && !loaded.isEmpty()) {
-            uiCommands.add(new UiCommand.OpenDatabases(loaded));
-        }
+        handleUiCommands();
     }
 
     private void writeMetadataToPdf(List<ParserResult> loaded,
@@ -793,5 +736,103 @@ public class ArgumentProcessor {
 
     public List<UiCommand> getUiCommands() {
         return uiCommands;
+    }
+
+    private void handleShowVersion() {
+        if ((startupMode == Mode.INITIAL_START) && cli.isShowVersion()) {
+            cli.displayVersion();
+        }
+    }
+
+    private void handlePreferencesReset() {
+        // Check if we should reset all preferences to default values:
+        if (cli.isPreferencesReset()) {
+            resetPreferences(cli.getPreferencesReset());
+        }
+    }
+
+    private void handlePreferencesImport() {
+        // Check if we should import preferences from a file:
+        if (cli.isPreferencesImport()) {
+            importPreferences();
+        }
+    }
+
+    private void handleFetcherEngine() {
+        if (!cli.isBlank() && cli.isFetcherEngine()) {
+            fetch(cli.getFetcherEngine()).ifPresent(loaded::add);
+        }
+    }
+
+    private void handleGenerateCitationKeys() {
+        if (cli.isGenerateCitationKeys()) {
+            regenerateCitationKeys(loaded);
+        }
+    }
+
+    private void handleAutomaticallySetFileLinks() {
+        if (cli.isAutomaticallySetFileLinks()) {
+            automaticallySetFileLinks(loaded);
+        }
+    }
+
+    private void handleWriteToPdf() {
+        if ((cli.isWriteXMPtoPdf() && cli.isEmbeddBibfileInPdf()) || (cli.isWriteMetadatatoPdf() && (cli.isWriteXMPtoPdf() || cli.isEmbeddBibfileInPdf()))) {
+            System.err.println("Give only one of [writeXMPtoPdf, embeddBibfileInPdf, writeMetadatatoPdf]");
+        }
+
+        if (cli.isWriteMetadatatoPdf() || cli.isWriteXMPtoPdf() || cli.isEmbeddBibfileInPdf()) {
+            if (!loaded.isEmpty()) {
+                writeMetadataToPdf(loaded,
+                        cli.getWriteMetadatatoPdf(),
+                        preferencesService.getXmpPreferences(),
+                        preferencesService.getFilePreferences(),
+                        preferencesService.getLibraryPreferences().getDefaultBibDatabaseMode(),
+                        Globals.entryTypesManager,
+                        preferencesService.getFieldPreferences(),
+                        Globals.journalAbbreviationRepository,
+                        cli.isWriteXMPtoPdf() || cli.isWriteMetadatatoPdf(),
+                        cli.isEmbeddBibfileInPdf() || cli.isWriteMetadatatoPdf());
+            }
+        }
+    }
+
+    private void handleExport() {
+        if (cli.isFileExport()) {
+            if (!loaded.isEmpty()) {
+                exportFile(loaded, cli.getFileExport().split(","));
+                LOGGER.debug("Finished export");
+            } else {
+                System.err.println(Localization.lang("The output option depends on a valid import option."));
+            }
+        }
+
+        if (cli.isPreferencesExport()) {
+            try {
+                preferencesService.exportPreferences(Path.of(cli.getPreferencesExport()));
+            } catch (JabRefException ex) {
+                LOGGER.error("Cannot export preferences", ex);
+            }
+        }
+    }
+
+    private void handleAuxImport() {
+        if (!cli.isBlank() && cli.isAuxImport()) {
+            doAuxImport(loaded);
+        }
+    }
+
+    private void handleUiCommands() {
+        if (cli.isBlank()) {
+            uiCommands.add(new UiCommand.BlankWorkspace());
+        }
+
+        if (!cli.isBlank() && cli.isJumpToKey()) {
+            uiCommands.add(new UiCommand.JumpToEntryKey(cli.getJumpToKey()));
+        }
+
+        if (!cli.isBlank() && !loaded.isEmpty()) {
+            uiCommands.add(new UiCommand.OpenDatabases(loaded));
+        }
     }
 }
