@@ -173,6 +173,25 @@ class EntryComparatorTest {
         // Expecting entry1 > entry2 because of the next comparator (year comparison)
         assertEquals(1, entryComparator.compare(entry1, entry2));
     }
+
+    @Test
+    void testCompareWithInvalidNumericFields() {
+        // Create a comparator that sorts based on a numeric field, e.g., VOLUME
+        EntryComparator comparator = new EntryComparator(false, false, StandardField.VOLUME);
+
+        // Create two BibEntry objects with non-numeric values in a numeric field
+        BibEntry entry1 = new BibEntry();
+        entry1.setField(StandardField.VOLUME, "Volume1");
+        BibEntry entry2 = new BibEntry();
+        entry2.setField(StandardField.VOLUME, "Volume2");
+
+        // Compare the entries, expecting the comparison to fall back to non-numeric comparison due to NumberFormatException
+        int result = comparator.compare(entry1, entry2);
+
+        // Assert that the comparison did not result in a tie
+        assertTrue(result != 0);
+    }
+
 }
 
 
