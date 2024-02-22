@@ -161,9 +161,9 @@ As can be seen in the table above, the branch coverage of JaCoco is roughly the 
 ## Coverage improvement
 
 
-| Function                                                 | JaCoco | Manual Coverage | Author | Tests Added      |
+| Function (Including link to the added tests that improved coverage)                                                | JaCoco | Manual Coverage | Author | Tests Added      |
 |--------------------------------------------------------|--------|-----------------|-------------|-------------|
-| [ArgumentProcessor::processArguments()](https://github.com/Deadlica/jabref/commit/commit_hash) |    59%    |      61%           |       Samuel Greenberg      |    4         |
+| [ArgumentProcessor::processArguments()](https://github.com/Deadlica/jabref/commit/1d74e221cc62f206f17b6eb5b04571e90846362e) |    59%    |      61%           |       Samuel Greenberg      |    4         |
 | [LayoutEntry::getLayoutFormatterByName()](https://github.com/Deadlica/jabref/commit/7bab53816b491197b938973fea0f79e01234623c)  |    51%    |       51.3%          |      Noel Tesfalidet       |       7      |
 | [PdfContentImporter::getEntryFromPDFContent()](https://github.com/Deadlica/jabref/commit/461e57619e08fbb3aec7a166b800e24c47aa83fb) |   63%     |        44%         |      André Fredriksen       |      2       |
 | [FieldNameLabel::getDescription()](https://github.com/Deadlica/jabref/commit/3d825e841f34a945c6cdfe4a84c5be511d7881cd)          |   6%   |       5.2%      |    Gustaf Larsson      |  3   |
@@ -186,3 +186,6 @@ The group's biggest potential for improvement is still probably better planning 
 The main takeaway is that open source requires a large time investment and efforts to be able to make significant contributions to the project. Many functions rely on other functions and truly understanding a function is therefore often very time consuming. We also realised that JabRef is already fairly well tested, especially functions that are simple to test. 
 
 We also realized how important good documentation is and how great of a difference it can make for new developers joining the project. The first open source project that we looked at was extremly difficult to get into and we barely understood how to make the necessary installations. The second project was significantly easier to get into and install and the guide on how to get started was very detailed.  
+
+## P+
+Samuel Greenberg and Noel Tesfalidet aimed for P+.
